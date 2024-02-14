@@ -1,0 +1,6 @@
+compose/mysql-dir
+compose/src/
+compose/sql/src/*
+.idea/
+compose/docker-compose.yml
+compose/bin/docker-helper
