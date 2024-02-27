@@ -1,0 +1,14 @@
+startup_message off
+
+caption always "%{= 45}%{+b w}Screen: %n | %h %=%t %c"
+hardstatus alwayslastline "%-Lw%{= BW}%50>%n%f* %t%{-}%+Lw%<"
+
+split
+
+focus
+chdir /home/node/pwa/deity/magento/server
+screen -t Server yarn start
+
+focus
+chdir /home/node/pwa/deity/magento/client
+screen -t Client yarn start

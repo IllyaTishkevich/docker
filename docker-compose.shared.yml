@@ -1,0 +1,13 @@
+version: '3.3'
+
+services:
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - db:db
+    ports:
+      - 8765:80
+    env_file: env/db.env
+    depends_on:
+      - db

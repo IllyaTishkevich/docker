@@ -1,0 +1,7 @@
+{
+    "extensions": {
+        "endpoints": {
+            "dev": "https://local.magento2.com/graphql"
+        }
+    }
+}

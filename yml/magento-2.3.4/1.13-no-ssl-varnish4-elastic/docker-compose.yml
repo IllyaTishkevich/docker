@@ -1,0 +1,87 @@
+version: '3.3'
+
+services:
+
+  db:
+    build:
+      context: ./images/db/mysql/5.7-custom-config
+    container_name: mysql
+    volumes:
+      - ./mysql-dir:/var/lib/mysql
+      - ./sql:/var/sql
+    restart: "no"
+    env_file: env/db.env
+    ports:
+      - 3305:3306
+
+  web:
+    build:
+      context: ./images/nginx/1.13-no-ssl-varnish4-elastic
+    container_name: nginx
+    tty: true
+    stdin_open: true
+    links:
+      - db
+      - phpfpm
+    volumes: &magento_volumes
+      - ./src:/var/www/html
+      - ./sendmail:/var/sendmail
+      - sockdata:/sock
+    ports:
+      - 8080:8081
+      - 443:8443
+    restart: "no"
+
+  phpfpm:
+    build:
+      context: ./images/php/7.3
+    container_name: php-fpm
+    env_file:
+      - ./env/composer.env
+      - ./env/magento.env
+    environment:
+      - XDEBUG_CONFIG="remote_enable=1 remote_mode=req remote_port=9986 remote_host={place_you_ip} remote_connect_back=0"
+      - PHP_IDE_CONFIG="serverName=Docker"
+      - M2SETUP_INSTALL_DB=true
+      - MAGENTO_ROOT=/var/www/html
+    tty: true
+    stdin_open: true
+    links:
+      - db
+    volumes: *magento_volumes
+
+  redis:
+    image: redis
+    container_name: redis
+    command: ["sh", "-c", "exec redis-server"]
+    ports:
+      - 6479:6379
+    expose:
+      - 6379
+
+  elasticsearch:
+    image: elasticsearch:6.8.2
+    environment:
+      - discovery.type=single-node
+      - transport.host=localhost
+      - transport.tcp.port=9300
+      - http.port=9200
+      - http.host=0.0.0.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  varnish:
+    build:
+      context: ./images/varnish/
+    volumes: *magento_volumes
+    ports:
+      - "80:80"
+      - "6081:6081"
+    links:
+      - web
+    depends_on:
+      - web
+
+volumes:
+  sockdata:
