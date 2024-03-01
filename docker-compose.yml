@@ -5,7 +5,7 @@ services:
   db:
     build:
       context: ./images/db/mysql/8
-    container_name: mysql_8
+    container_name: mysql
     volumes:
       - ./mysql-dir:/var/lib/mysql
       - ./sql:/var/sql
